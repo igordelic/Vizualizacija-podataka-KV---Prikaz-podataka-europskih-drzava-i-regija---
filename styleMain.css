@@ -1,0 +1,82 @@
+body {
+  margin: 0;
+}
+#container {
+    display: flex;
+    width: 800px;
+    height: 700px;
+  }
+
+#map {
+  order: 1;
+  flex: 1;
+}
+
+#data-container {
+  order: 3;
+  flex: 0 0 300px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  margin-top: 20px;
+}
+
+#graph-container {
+  order: 2;
+  width: 90%;
+  height: 100px;
+}
+svg {
+  background-color: white;
+}
+
+path {
+  fill: #54c5f1;
+  stroke: white;
+  stroke-width: 0.5px;
+}
+
+path:hover {
+  fill: blue;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header {
+  background-color: lightblue;
+  padding: 1px;
+}
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav li {
+  display: inline;
+  margin-right: 20px;
+}
+
+nav li a {
+  text-decoration: none;
+  color: rgb(15, 15, 15);
+  font-weight: bold;
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.3);
+  transition: background-color 0.3s ease;
+}
+
+nav li a:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+nav li a.active {
+  color: black;
+  background-color: white;
+}

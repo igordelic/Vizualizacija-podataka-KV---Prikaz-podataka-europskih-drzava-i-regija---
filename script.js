@@ -1,5 +1,3 @@
-var width = 900;
-var height = 700;
 d3.json("europe.geojson").then(function(geojson) {
 var jsonData = [
   {
@@ -589,6 +587,8 @@ var jsonData = [
   }
 ]
 
+var width = 900;
+var height = 700;
 var svg = d3.select("#map")
         .append("svg")
         .attr("width", width)
@@ -605,7 +605,7 @@ svg.selectAll("path")
     .enter()
     .append("path")
     .attr("d", path) 
-    .on("mouseover", function(d, data) {
+    .on("click", function(d, data) {
         var countryName = data.properties.NAME;
         var countryData = jsonData.find(function(country) {
             return country.country_name == countryName;
@@ -636,122 +636,163 @@ svg.selectAll("path")
 
         var maxPopulation = d3.max(regionCountryPopulations);
         var scaleFactor = 300 / maxPopulation;
-       
+
         d3.select("#graph-container")
-            .html("");
+          .html("")
+          .append("div")
+          .attr("class", "loader");
 
         var svg = d3.select("#graph-container")
-            .append("svg")
-            .attr("width", 800)
-            .attr("height", 600);
+          .append("svg")
+          .attr("width", 800)
+          .attr("height", 600);
 
         var bars = svg.selectAll("rect")
-            .data(regionCountryPopulations)
-            .enter()
-            .append("rect")
-            .attr("x", function(d, i) {
-                return i * 65;
-            })
-            .attr("y", function(d) {
-                return 350 - d * scaleFactor; 
-            })
-            .attr("width", 30)
-            .attr("height", function(d) {
-                return d * scaleFactor; 
-            })
-            .attr("fill", "blue");
+          .data(regionCountryPopulations)
+          .enter()
+          .append("rect")
+          .attr("x", function(d, i) {
+            return i * 65;
+          })
+          .attr("y", function(d) {
+            return 350 - d * scaleFactor;
+          })
+          .attr("width", 30)
+          .attr("height", function(d) {
+            return d * scaleFactor;
+          })
+          .attr("fill", "blue")
+          .style("opacity", 0);
 
-            
         var labels = svg.selectAll("text")
-            .data(regionCountryPopulations)
-            .enter()
-            .append("text")
-            .text(function(d, i) {
-                return regionCountryNames[i];
-            })
-            .attr("x", function(d, i) {
-                return i * 65 + 21; 
-            })
-            .attr("y", function(d) {
-                return 380; 
-            })
-            .attr("text-anchor", "middle") 
-            .attr("font-size", "11px")
-            .attr("fill", "black");
+          .data(regionCountryPopulations)
+          .enter()
+          .append("text")
+          .text(function(d, i) {
+            return regionCountryNames[i];
+          })
+          .attr("x", function(d, i) {
+            return i * 65 + 21;
+          })
+          .attr("y", function(d) {
+            return 380;
+          })
+          .attr("text-anchor", "middle")
+          .attr("font-size", "11px")
+          .attr("fill", "black")
+          .style("opacity", 0); 
 
         svg.append("text")
-            .attr("x", width / 2)
-            .attr("y", 20)
-            .attr("text-anchor", "right")
-            .attr("font-weight", "bold")
-            .attr("font-size", "28px")
-            .text("Population ratio in the region");
+          .attr("x", width / 2)
+          .attr("y", 20)
+          .attr("text-anchor", "right")
+          .attr("font-weight", "bold")
+          .attr("font-size", "28px")
+          .text("Population ratio in the region");
 
-        var data = [
-            { name: 'Birth rate', value: countryData.birth_rate }, 
-            { name: 'Death rate', value: countryData.death_rate }
-          ];
+        var animationDuration = 1000; 
+        var animationDelay = 200; 
 
-        var width = 800;
-        var height = 250;
-        var radius = Math.min(width, height) / 2;
-        var fixedValue = 11; 
-        radius += fixedValue;
+        d3.select(".loader")
+          .style("opacity", 0)
+          .transition()
+          .duration(animationDuration)
+          .style("opacity", 1)
+          .transition()
+          .duration(animationDuration)
+          .style("opacity", 0)
+          .remove();
 
-        var svg = d3.select("#graph-container")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height);
+        bars.transition()
+          .duration(animationDuration)
+          .delay(function(d, i) {
+            return i * animationDelay;
+          })
+          .style("opacity", 1); 
 
-        var pie = d3.pie()
-            .value(function(d) {
-              return d.value;
-            });
+        labels.transition()
+          .duration(animationDuration)
+          .delay(function(d, i) {
+            return i * animationDelay;
+          })
+          .style("opacity", 1); 
 
-        var arc = d3.arc()
-            .outerRadius(radius - 10)
-            .innerRadius(0);
-        var g = svg.append("g")
-            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-        var slices = g.selectAll("path")
-            .data(pie(data))
-            .enter()
-            .append("path")
-            .attr("d", arc)
-            .style("fill", function(d) {
-              if (d.data.name === "Birth rate") {
-                return "green";
-              } else if (d.data.name === "Death rate") {
-                return "red";
-              }
-            })
-            .style("stroke", "white")
-            .style("stroke-width", 0.5);
-
-        var labels = g.selectAll("text")
-            .data(pie(data))
-            .enter()
-            .append("text")
-            .attr("transform", function(d) {
-              return "translate(" + arc.centroid(d) + ")";
-            })
-            .attr("dy", "0.35em")
-            .attr("text-anchor", "middle")
-            .attr("font-size", "25px")
-            .attr("fill", "black")
-            .text(function(d) {
-              return d.data.name;
-            });
-        }
-    });
-
-    svg.on("mouseout", function() {
-    d3.select("#graph-container")
-        .html("");
-        d3.select("#data-container")
-        .html("");
-    });
-
+            var data = [
+              { name: 'Birth rate', value: countryData.birth_rate },
+              { name: 'Death rate', value: countryData.death_rate }
+            ];
+            
+            var width = 800;
+            var height = 250;
+            var radius = Math.min(width, height) / 2;
+            var fixedValue = 11;
+            radius += fixedValue;
+            
+            var svg = d3.select("#graph-container")
+              .append("svg")
+              .attr("width", width)
+              .attr("height", height);
+            
+            var pie = d3.pie()
+              .value(function(d) {
+                return d.value;
+              });
+            
+            var arc = d3.arc()
+              .outerRadius(radius - 10)
+              .innerRadius(0);
+            
+            var g = svg.append("g")
+              .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+            
+            var slices = g.selectAll("path")
+              .data(pie(data))
+              .enter()
+              .append("path")
+              .attr("d", arc)
+              .style("fill", function(d) {
+                if (d.data.name === "Birth rate") {
+                  return "green";
+                } else if (d.data.name === "Death rate") {
+                  return "red";
+                }
+              })
+              .style("stroke", "white")
+              .style("stroke-width", 0.5)
+              .style("opacity", 0); 
+            
+            var labels = g.selectAll("text")
+              .data(pie(data))
+              .enter()
+              .append("text")
+              .attr("transform", function(d) {
+                return "translate(" + arc.centroid(d) + ")";
+              })
+              .attr("dy", "0.35em")
+              .attr("text-anchor", "middle")
+              .attr("font-size", "25px")
+              .attr("fill", "black")
+              .text(function(d) {
+                return d.data.name;
+              })
+              .style("opacity", 0); 
+            
+            
+            slices.transition()
+              .duration(1000) 
+              .delay(function(d, i) {
+                return i * 200; 
+              })
+              .style("opacity", 1); 
+            
+            labels.transition()
+              .duration(1000) 
+              .delay(function(d, i) {
+                return i * 200; 
+              })
+              .style("opacity", 1); 
+            
+    }
+  });
 });
     
